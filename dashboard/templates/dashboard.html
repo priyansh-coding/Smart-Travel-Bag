@@ -3,28 +3,328 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Travel Bag — Command Center</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <title>SmartBag — Command Center</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #0a0a0a;
+    color: #ffffff;
+    min-height: 100vh;
+    font-size: 14px;
+}
+
+.command-center {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* HEADER */
+.top-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: #111111;
+    border: 1px solid #1f1f1f;
+    border-radius: 12px;
+}
+
+.header-left { display: flex; align-items: center; gap: 12px; }
+.logo-mark {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, #10b981, #3b82f6);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+}
+.logo-mark .material-icons-round { font-size: 22px; color: #fff; }
+.brand { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; }
+.tagline { font-size: 0.75rem; color: #666; font-weight: 500; }
+
+.header-center { display: flex; align-items: center; }
+.status-indicator {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 14px;
+    background: #141414;
+    border: 1px solid #1f1f1f;
+    border-radius: 20px;
+    font-size: 0.8rem; font-weight: 600;
+}
+.pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: #444; }
+.pulse-dot.online { background: #10b981; box-shadow: 0 0 8px #10b981; animation: pulse 2s infinite; }
+.pulse-dot.offline { background: #f43f5e; }
+.pulse-dot.stale { background: #f59e0b; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+.header-right { display: flex; align-items: center; gap: 10px; }
+.security-badge {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 14px;
+    background: #141414;
+    border: 1px solid #1f1f1f;
+    border-radius: 20px;
+    font-size: 0.8rem; font-weight: 600;
+}
+.security-badge .material-icons-round { font-size: 16px; }
+.security-badge.safe { border-color: #10b981; color: #10b981; background: rgba(16,185,129,0.1); }
+.security-badge.warning { border-color: #f59e0b; color: #f59e0b; background: rgba(245,158,11,0.1); }
+.security-badge.critical { border-color: #f43f5e; color: #f43f5e; background: rgba(244,63,94,0.1); }
+.security-badge.offline { color: #666; }
+
+.icon-btn {
+    width: 38px; height: 38px;
+    border-radius: 8px;
+    border: 1px solid #1f1f1f;
+    background: #141414;
+    color: #a0a0a0;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+}
+.icon-btn:hover { border-color: #333; color: #fff; }
+.icon-btn.spinning .material-icons-round { animation: spin 0.6s linear; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* GRID */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+/* METRIC CARDS */
+.metric-card {
+    background: #141414;
+    border: 1px solid #1f1f1f;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+}
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent);
+}
+.metric-card.emerald { --accent: #10b981; }
+.metric-card.blue { --accent: #3b82f6; }
+.metric-card.amber { --accent: #f59e0b; }
+.metric-card.purple { --accent: #8b5cf6; }
+
+.metric-top { display: flex; align-items: center; justify-content: space-between; }
+.metric-label { font-size: 0.8rem; font-weight: 600; color: #a0a0a0; }
+.metric-icon { font-size: 18px; color: #666; }
+
+.metric-value { display: flex; align-items: baseline; gap: 4px; margin-top: 8px; }
+.metric-value .value { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+.metric-value .unit { font-size: 0.9rem; color: #666; font-weight: 600; }
+
+.metric-chart { height: 50px; margin-top: auto; }
+.metric-chart canvas { width: 100% !important; height: 50px !important; }
+
+.metric-footer { display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; }
+.change { font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+.change.up { color: #10b981; background: rgba(16,185,129,0.1); }
+.tag { color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.7rem; }
+.time { color: #444; font-weight: 500; }
+
+.lock-visual {
+    display: flex; align-items: center; justify-content: center;
+    height: 50px;
+    background: #1c1c1c;
+    border-radius: 8px;
+    margin-top: auto;
+}
+.lock-visual .material-icons-round { font-size: 30px; color: #666; }
+
+/* PANELS */
+.chart-panel, .info-panel, .events-panel, .controls-panel {
+    background: #141414;
+    border: 1px solid #1f1f1f;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+.panel-title { font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; }
+.panel-subtitle { font-size: 0.75rem; color: #666; margin-top: 2px; font-weight: 500; }
+
+.period-selector { display: flex; gap: 4px; }
+.period-btn {
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid #1f1f1f;
+    background: transparent;
+    color: #666;
+    font-size: 0.72rem; font-weight: 600;
+    cursor: pointer;
+}
+.period-btn.active { background: #fff; border-color: #fff; color: #0a0a0a; }
+
+.chart-container { position: relative; flex: 1; min-height: 0; }
+.chart-container canvas { width: 100% !important; height: 100% !important; }
+
+.chart-panel.large { grid-column: span 3; min-height: 280px; }
+.chart-panel.medium { grid-column: span 2; }
+
+/* DONUT */
+.donut-container { display: flex; align-items: center; gap: 24px; flex: 1; }
+.donut-chart { position: relative; width: 140px; height: 140px; flex-shrink: 0; }
+.donut-chart canvas { width: 100% !important; height: 100% !important; }
+.donut-center-text {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+.donut-value { font-size: 1.8rem; font-weight: 800; display: block; line-height: 1; }
+.donut-label { font-size: 0.7rem; color: #666; font-weight: 600; text-transform: uppercase; }
+.donut-legend { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; }
+.legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+.legend-label { flex: 1; color: #a0a0a0; }
+.legend-val { font-weight: 700; font-size: 0.9rem; }
+
+/* INFO PANELS */
+.info-panel { grid-column: span 1; }
+
+.gps-content { display: flex; flex-direction: column; gap: 12px; flex: 1; }
+.gps-data { display: flex; flex-direction: column; gap: 6px; }
+.gps-row { display: flex; justify-content: space-between; font-size: 0.8rem; }
+.gps-label { color: #666; font-weight: 500; }
+.gps-val { font-weight: 700; font-family: 'SF Mono', monospace; font-size: 0.75rem; }
+.gps-map {
+    width: 100%; height: 80px;
+    background: #1c1c1c;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid #1f1f1f;
+}
+.gps-map .material-icons-round { font-size: 24px; color: #444; }
+.map-link {
+    display: inline-flex; align-items: center; gap: 4px;
+    margin-top: 12px;
+    padding: 6px 12px;
+    background: #3b82f6;
+    color: #fff;
+    border-radius: 6px;
+    font-size: 0.75rem; font-weight: 600;
+    text-decoration: none;
+}
+.map-link:hover { opacity: 0.9; }
+
+.bag-visual {
+    width: 64px; height: 64px;
+    background: #1c1c1c;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 12px;
+    border: 1px solid #1f1f1f;
+}
+.bag-visual .material-icons-round { font-size: 32px; color: #666; }
+.bag-visual.closed { background: rgba(16,185,129,0.1); border-color: #10b981; }
+.bag-visual.closed .material-icons-round { color: #10b981; }
+.bag-visual.open { background: rgba(244,63,94,0.1); border-color: #f43f5e; }
+.bag-visual.open .material-icons-round { color: #f43f5e; }
+.bag-status { text-align: center; }
+.bag-label { font-size: 1.1rem; font-weight: 800; display: block; }
+.bag-sub { font-size: 0.75rem; color: #666; display: block; margin-top: 2px; }
+
+/* EVENTS */
+.events-panel { grid-column: span 2; max-height: 240px; }
+.event-filters { display: flex; gap: 4px; }
+.filter-btn {
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid #1f1f1f;
+    background: transparent;
+    color: #666;
+    font-size: 0.72rem; font-weight: 600;
+    cursor: pointer;
+}
+.filter-btn.active { background: #fff; border-color: #fff; color: #0a0a0a; }
+
+.events-list { flex: 1; overflow-y: auto; max-height: 160px; }
+.events-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px; color: #444; }
+.events-empty .material-icons-round { font-size: 32px; margin-bottom: 6px; opacity: 0.4; }
+
+.event-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid #1f1f1f; }
+.event-item:last-child { border-bottom: none; }
+.event-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+.event-dot.info { background: #3b82f6; }
+.event-dot.warning { background: #f59e0b; }
+.event-dot.critical { background: #f43f5e; }
+.event-content { flex: 1; min-width: 0; }
+.event-type { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #666; }
+.event-message { font-size: 0.8rem; color: #fff; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.event-time { font-size: 0.7rem; color: #444; flex-shrink: 0; }
+
+/* CONTROLS */
+.controls-panel { grid-column: span 2; }
+.control-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.ctrl-btn {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    padding: 14px 8px;
+    border-radius: 8px;
+    border: 1px solid #1f1f1f;
+    background: #1c1c1c;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.75rem; font-weight: 600;
+}
+.ctrl-btn:hover { border-color: #333; }
+.ctrl-btn .material-icons-round { font-size: 20px; }
+.ctrl-btn.beep { color: #3b82f6; }
+.ctrl-btn.alert { color: #f59e0b; }
+.ctrl-btn.sos { color: #f43f5e; }
+.ctrl-btn.confirm { color: #10b981; }
+.ctrl-btn.lock-btn { color: #8b5cf6; }
+.ctrl-btn.lock-btn.locked { color: #f43f5e; }
+.ctrl-btn.analyze { color: #06b6d4; }
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+    .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+    .chart-panel.large { grid-column: span 2; }
+    .chart-panel.medium { grid-column: span 1; }
+    .info-panel { grid-column: span 1; }
+    .events-panel, .controls-panel { grid-column: span 2; }
+}
+@media (max-width: 768px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .chart-panel.large, .chart-panel.medium, .info-panel, .events-panel, .controls-panel { grid-column: span 1; }
+    .control-grid { grid-template-columns: repeat(2, 1fr); }
+    .metric-value .value { font-size: 1.8rem; }
+}
+    </style>
 </head>
 <body>
     <div class="command-center">
 
-        <!-- Header -->
         <header class="top-header">
             <div class="header-left">
-                <div class="logo-mark">
-                    <span class="material-icons-round">luggage</span>
-                </div>
+                <div class="logo-mark"><span class="material-icons-round">luggage</span></div>
                 <div>
                     <h1 class="brand">SmartBag</h1>
                     <p class="tagline">Command Center</p>
                 </div>
             </div>
             <div class="header-center">
-                <div class="status-indicator" id="statusIndicator">
+                <div class="status-indicator">
                     <span class="pulse-dot" id="pulseDot"></span>
                     <span id="statusText">Initializing…</span>
                 </div>
@@ -34,227 +334,97 @@
                     <span class="material-icons-round">shield</span>
                     <span id="securityLabel">—</span>
                 </div>
-                <button class="icon-btn" id="refreshBtn" title="Refresh">
-                    <span class="material-icons-round">refresh</span>
-                </button>
+                <button class="icon-btn" id="refreshBtn"><span class="material-icons-round">refresh</span></button>
             </div>
         </header>
 
-        <!-- Main Grid -->
         <main class="dashboard-grid">
 
-            <!-- Metric Cards Row -->
             <div class="metric-card emerald">
-                <div class="metric-top">
-                    <span class="metric-label">Weight</span>
-                    <span class="material-icons-round metric-icon">scale</span>
-                </div>
-                <div class="metric-value">
-                    <span class="value" id="weightValue">--</span>
-                    <span class="unit">kg</span>
-                </div>
-                <div class="metric-chart">
-                    <canvas id="sparkWeight"></canvas>
-                </div>
-                <div class="metric-footer">
-                    <span class="change up" id="weightChange">—</span>
-                    <span class="time" id="weightTime">--:--</span>
-                </div>
+                <div class="metric-top"><span class="metric-label">Weight</span><span class="material-icons-round metric-icon">scale</span></div>
+                <div class="metric-value"><span class="value" id="weightValue">--</span><span class="unit">kg</span></div>
+                <div class="metric-chart"><canvas id="sparkWeight"></canvas></div>
+                <div class="metric-footer"><span class="change up" id="weightChange">—</span><span class="time" id="weightTime">--:--</span></div>
             </div>
 
             <div class="metric-card blue">
-                <div class="metric-top">
-                    <span class="metric-label">Distance</span>
-                    <span class="material-icons-round metric-icon">straighten</span>
-                </div>
-                <div class="metric-value">
-                    <span class="value" id="distanceValue">--</span>
-                    <span class="unit">cm</span>
-                </div>
-                <div class="metric-chart">
-                    <canvas id="sparkDistance"></canvas>
-                </div>
-                <div class="metric-footer">
-                    <span class="change" id="distanceChange">—</span>
-                    <span class="time" id="distanceTime">--:--</span>
-                </div>
+                <div class="metric-top"><span class="metric-label">Distance</span><span class="material-icons-round metric-icon">straighten</span></div>
+                <div class="metric-value"><span class="value" id="distanceValue">--</span><span class="unit">cm</span></div>
+                <div class="metric-chart"><canvas id="sparkDistance"></canvas></div>
+                <div class="metric-footer"><span class="change" id="distanceChange">—</span><span class="time" id="distanceTime">--:--</span></div>
             </div>
 
             <div class="metric-card amber">
-                <div class="metric-top">
-                    <span class="metric-label">Movement</span>
-                    <span class="material-icons-round metric-icon">sensors</span>
-                </div>
-                <div class="metric-value">
-                    <span class="value" id="movementValue">--</span>
-                </div>
-                <div class="metric-chart">
-                    <canvas id="sparkMovement"></canvas>
-                </div>
-                <div class="metric-footer">
-                    <span class="tag" id="movementTag">--</span>
-                    <span class="time" id="movementTime">--:--</span>
-                </div>
+                <div class="metric-top"><span class="metric-label">Movement</span><span class="material-icons-round metric-icon">sensors</span></div>
+                <div class="metric-value"><span class="value" id="movementValue">--</span></div>
+                <div class="metric-chart"><canvas id="sparkMovement"></canvas></div>
+                <div class="metric-footer"><span class="tag" id="movementTag">--</span><span class="time" id="movementTime">--:--</span></div>
             </div>
 
             <div class="metric-card purple">
-                <div class="metric-top">
-                    <span class="metric-label">Lock Status</span>
-                    <span class="material-icons-round metric-icon">lock</span>
-                </div>
-                <div class="metric-value">
-                    <span class="value" id="lockValue">--</span>
-                </div>
-                <div class="lock-visual" id="lockVisual">
-                    <span class="material-icons-round" id="lockIcon">lock</span>
-                </div>
-                <div class="metric-footer">
-                    <span class="tag" id="lockTag">--</span>
-                    <span class="time" id="lockTime">--:--</span>
-                </div>
+                <div class="metric-top"><span class="metric-label">Lock Status</span><span class="material-icons-round metric-icon">lock</span></div>
+                <div class="metric-value"><span class="value" id="lockValue">--</span></div>
+                <div class="lock-visual" id="lockVisual"><span class="material-icons-round" id="lockIcon">lock</span></div>
+                <div class="metric-footer"><span class="tag" id="lockTag">--</span><span class="time" id="lockTime">--:--</span></div>
             </div>
 
-            <!-- Main Charts Row -->
             <div class="chart-panel large">
                 <div class="panel-header">
-                    <div>
-                        <h3 class="panel-title">Weight Trend</h3>
-                        <p class="panel-subtitle">Real-time monitoring</p>
-                    </div>
-                    <div class="period-selector">
-                        <button class="period-btn active">1H</button>
-                        <button class="period-btn">24H</button>
-                        <button class="period-btn">7D</button>
-                    </div>
+                    <div><h3 class="panel-title">Weight Trend</h3><p class="panel-subtitle">Real-time monitoring</p></div>
+                    <div class="period-selector"><button class="period-btn active">1H</button><button class="period-btn">24H</button><button class="period-btn">7D</button></div>
                 </div>
-                <div class="chart-container">
-                    <canvas id="weightTrendChart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="weightTrendChart"></canvas></div>
             </div>
 
             <div class="chart-panel medium">
-                <div class="panel-header">
-                    <div>
-                        <h3 class="panel-title">System Health</h3>
-                        <p class="panel-subtitle">Sensor status</p>
-                    </div>
-                </div>
+                <div class="panel-header"><div><h3 class="panel-title">System Health</h3><p class="panel-subtitle">Sensor status</p></div></div>
                 <div class="donut-container">
-                    <div class="donut-chart">
-                        <canvas id="healthDonut"></canvas>
-                        <div class="donut-center-text">
-                            <span class="donut-value" id="onlineCount">0</span>
-                            <span class="donut-label">Online</span>
-                        </div>
-                    </div>
+                    <div class="donut-chart"><canvas id="healthDonut"></canvas><div class="donut-center-text"><span class="donut-value" id="onlineCount">0</span><span class="donut-label">Online</span></div></div>
                     <div class="donut-legend" id="healthLegend"></div>
                 </div>
             </div>
 
-            <!-- Secondary Row -->
             <div class="chart-panel medium">
-                <div class="panel-header">
-                    <div>
-                        <h3 class="panel-title">Sensor Readings</h3>
-                        <p class="panel-subtitle">Live values</p>
-                    </div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="sensorBarChart"></canvas>
-                </div>
+                <div class="panel-header"><div><h3 class="panel-title">Sensor Readings</h3><p class="panel-subtitle">Live values</p></div></div>
+                <div class="chart-container"><canvas id="sensorBarChart"></canvas></div>
             </div>
 
             <div class="info-panel">
-                <div class="panel-header">
-                    <h3 class="panel-title">GPS Location</h3>
-                </div>
+                <div class="panel-header"><h3 class="panel-title">GPS Location</h3></div>
                 <div class="gps-content">
                     <div class="gps-data">
-                        <div class="gps-row">
-                            <span class="gps-label">Latitude</span>
-                            <span class="gps-val" id="gpsLat">--</span>
-                        </div>
-                        <div class="gps-row">
-                            <span class="gps-label">Longitude</span>
-                            <span class="gps-val" id="gpsLng">--</span>
-                        </div>
-                        <div class="gps-row">
-                            <span class="gps-label">Fix Status</span>
-                            <span class="gps-val" id="gpsFix">--</span>
-                        </div>
+                        <div class="gps-row"><span class="gps-label">Latitude</span><span class="gps-val" id="gpsLat">--</span></div>
+                        <div class="gps-row"><span class="gps-label">Longitude</span><span class="gps-val" id="gpsLng">--</span></div>
+                        <div class="gps-row"><span class="gps-label">Fix Status</span><span class="gps-val" id="gpsFix">--</span></div>
                     </div>
-                    <div class="gps-map" id="gpsMap">
-                        <span class="material-icons-round">explore</span>
-                    </div>
+                    <div class="gps-map" id="gpsMap"><span class="material-icons-round">explore</span></div>
                 </div>
-                <a class="map-link" id="mapLink" href="#" target="_blank" style="display:none">
-                    <span class="material-icons-round">open_in_new</span> Maps
-                </a>
+                <a class="map-link" id="mapLink" href="#" target="_blank" style="display:none"><span class="material-icons-round">open_in_new</span> Maps</a>
             </div>
 
-            <div class="info-panel compact">
-                <div class="panel-header">
-                    <h3 class="panel-title">Bag State</h3>
-                </div>
-                <div class="bag-visual" id="bagVisual">
-                    <span class="material-icons-round" id="bagIcon">inventory_2</span>
-                </div>
-                <div class="bag-status">
-                    <span class="bag-label" id="bagLabel">--</span>
-                    <span class="bag-sub" id="bagSub">No data</span>
-                </div>
+            <div class="info-panel">
+                <div class="panel-header"><h3 class="panel-title">Bag State</h3></div>
+                <div class="bag-visual" id="bagVisual"><span class="material-icons-round" id="bagIcon">inventory_2</span></div>
+                <div class="bag-status"><span class="bag-label" id="bagLabel">--</span><span class="bag-sub" id="bagSub">No data</span></div>
             </div>
 
-            <!-- Bottom Row -->
             <div class="events-panel">
                 <div class="panel-header">
-                    <div>
-                        <h3 class="panel-title">Live Events</h3>
-                        <p class="panel-subtitle" id="eventCount">0 events</p>
-                    </div>
-                    <div class="event-filters">
-                        <button class="filter-btn active" data-filter="all">All</button>
-                        <button class="filter-btn" data-filter="security">Security</button>
-                        <button class="filter-btn" data-filter="system">System</button>
-                    </div>
+                    <div><h3 class="panel-title">Live Events</h3><p class="panel-subtitle" id="eventCount">0 events</p></div>
+                    <div class="event-filters"><button class="filter-btn active" data-filter="all">All</button><button class="filter-btn" data-filter="security">Security</button><button class="filter-btn" data-filter="system">System</button></div>
                 </div>
-                <div class="events-list" id="eventsList">
-                    <div class="events-empty">
-                        <span class="material-icons-round">event_note</span>
-                        <p>No events yet</p>
-                    </div>
-                </div>
+                <div class="events-list" id="eventsList"><div class="events-empty"><span class="material-icons-round">event_note</span><p>No events yet</p></div></div>
             </div>
 
             <div class="controls-panel">
-                <div class="panel-header">
-                    <h3 class="panel-title">Quick Controls</h3>
-                </div>
+                <div class="panel-header"><h3 class="panel-title">Quick Controls</h3></div>
                 <div class="control-grid">
-                    <button class="ctrl-btn beep" onclick="buzzerCmd('beep',300)">
-                        <span class="material-icons-round">notifications</span>
-                        <span>Beep</span>
-                    </button>
-                    <button class="ctrl-btn alert" onclick="buzzerCmd('pattern',1500,'alert')">
-                        <span class="material-icons-round">warning</span>
-                        <span>Alert</span>
-                    </button>
-                    <button class="ctrl-btn sos" onclick="buzzerCmd('pattern',3000,'sos')">
-                        <span class="material-icons-round">emergency</span>
-                        <span>SOS</span>
-                    </button>
-                    <button class="ctrl-btn confirm" onclick="buzzerCmd('pattern',400,'confirm')">
-                        <span class="material-icons-round">check_circle</span>
-                        <span>OK</span>
-                    </button>
-                    <button class="ctrl-btn lock-btn" id="lockBtn" onclick="toggleLock()">
-                        <span class="material-icons-round" id="lockBtnIcon">lock</span>
-                        <span id="lockBtnText">Lock</span>
-                    </button>
-                    <button class="ctrl-btn analyze" id="analyzeBtn">
-                        <span class="material-icons-round">psychology</span>
-                        <span>Analyze</span>
-                    </button>
+                    <button class="ctrl-btn beep" onclick="buzzerCmd('beep',300)"><span class="material-icons-round">notifications</span><span>Beep</span></button>
+                    <button class="ctrl-btn alert" onclick="buzzerCmd('pattern',1500,'alert')"><span class="material-icons-round">warning</span><span>Alert</span></button>
+                    <button class="ctrl-btn sos" onclick="buzzerCmd('pattern',3000,'sos')"><span class="material-icons-round">emergency</span><span>SOS</span></button>
+                    <button class="ctrl-btn confirm" onclick="buzzerCmd('pattern',400,'confirm')"><span class="material-icons-round">check_circle</span><span>OK</span></button>
+                    <button class="ctrl-btn lock-btn" id="lockBtn" onclick="toggleLock()"><span class="material-icons-round" id="lockBtnIcon">lock</span><span id="lockBtnText">Lock</span></button>
+                    <button class="ctrl-btn analyze" id="analyzeBtn"><span class="material-icons-round">psychology</span><span>Analyze</span></button>
                 </div>
             </div>
 
