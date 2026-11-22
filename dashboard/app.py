@@ -20,7 +20,7 @@ import requests as http_requests
 # ---------------------------------------------------------------------------
 CONFIG = {
     "DASHBOARD_HOST": "0.0.0.0",
-    "DASHBOARD_PORT": 5001,
+    "DASHBOARD_PORT": int(os.environ.get("PORT", 5001)),
     "AI_SERVER_URL": os.environ.get("AI_SERVER_URL", "http://localhost:3000"),
     "AI_ANALYZE_ENDPOINT": "/analyze",
     "STALE_THRESHOLD_SECONDS": 15,
