@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Travel Bag — Dashboard</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- ====================== HEADER ====================== -->
+    <header class="header">
+        <div class="header-left">
+            <span class="material-icons-round header-icon">luggage</span>
+            <div>
+                <h1 class="header-title">Smart Travel Bag</h1>
+                <p class="header-subtitle">Real-Time IoT Monitoring Dashboard</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="connection-badge" id="connectionBadge">
+                <span class="status-dot" id="connectionDot"></span>
+                <span id="connectionText">Connecting…</span>
+            </div>
+            <div class="last-update" id="lastUpdateDisplay">
+                <span class="material-icons-round">schedule</span>
+                <span id="lastUpdateText">No data yet</span>
+            </div>
+            <button class="refresh-btn" id="refreshBtn" title="Refresh dashboard data">
+                <span class="material-icons-round">refresh</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ====================== SECURITY BANNER ====================== -->
+    <div class="security-banner" id="securityBanner">
+        <span class="material-icons-round" id="bannerIcon">shield</span>
+        <span id="bannerText">Waiting for device connection…</span>
+    </div>
+
+    <!-- ====================== MAIN CONTENT ====================== -->
+    <main class="dashboard-grid">
+
+        <!-- Row 1: Summary Cards -->
+        <section class="card card-summary" id="cardWeight">
+            <div class="card-header">
+                <span class="material-icons-round card-icon">scale</span>
+                <h2>Weight</h2>
+                <span class="card-status" id="weightStatus">—</span>
+            </div>
+            <div class="card-value">
+                <span class="big-value" id="weightValue">--</span>
+                <span class="unit">kg</span>
+            </div>
+            <div class="card-timestamp" id="weightTimestamp">No data</div>
+        </section>
+
+        <section class="card card-summary" id="cardLock">
+            <div class="card-header">
+                <span class="material-icons-round card-icon">lock</span>
+                <h2>Smart Lock</h2>
+                <span class="card-status" id="lockStatus">—</span>
+            </div>
+            <div class="card-value">
+                <span class="big-value lock-icon" id="lockIcon">
+                    <span class="material-icons-round">lock_open</span>
+                </span>
+                <span class="lock-text" id="lockText">Unknown</span>
+            </div>
+            <div class="rfid-info" id="rfidInfo">RFID: No authentication data</div>
+            <div class="card-timestamp" id="lockTimestamp">No data</div>
+        </section>
+
+        <section class="card card-summary" id="cardBag">
+            <div class="card-header">
+                <span class="material-icons-round card-icon">inventory_2</span>
+                <h2>Bag State</h2>
+                <span class="card-status" id="bagStatus">—</span>
+            </div>
+            <div class="card-value">
+                <span class="big-value" id="bagValue">--</span>
+            </div>
+            <div class="card-timestamp" id="bagTimestamp">No data</div>
+        </section>
+
+        <section class="card card-summary" id="cardMovement">
+            <div class="card-header">
+                <span class="material-icons-round card-icon">sensors</span>
+                <h2>Movement</h2>
+                <span class="card-status" id="movementStatus">—</span>
+            </div>
+            <div class="card-value">
+                <span class="big-value" id="movementValue">--</span>
+            </div>
+            <div class="accel-data" id="accelData">Accel: --</div>
+            <div class="card-timestamp" id="movementTimestamp">No data</div>
+        </section>
+
+        <!-- Row 2: GPS + Distance -->
+        <section class="card card-gps" id="cardGPS">
+            <div class="card-header">
+                <span class="material-icons-round card-icon">location_on</span>
+                <h2>GPS Tracking</h2>
+                <span class="card-status" id="gpsStatus">—</span>
+            </div>
+            <div class="gps-content">
+                <div class="gps-coords">
+                    <div class="coord-row">
+                        <span class="coord-label">Latitude:</span>
+                        <span class="coord-value" id="gpsLat">--</span>
+                    </div>
+                    <div class="coord-row">
+                        <span class="coord-label">Longitude:</span>
+                        <span class="coord-value" id="gpsLon">--</span>
+                    </div>
+                    <div class="coord-row">
+                        <span class="coord-label">Fix Valid:</span>
+                        <span class="coord-value" id="gpsFix">--</span>
+                    </div>
+                </div>
+                <div class="map-container" id="mapContainer">
+                    <div class="map-placeholder" id="mapPlaceholder">
+                        <span class="material-icons-round">map</span>
+                        <p>Waiting for valid GPS fix…</p>
+                    </div>
+                    <a class="map-link" id="mapLink" href="#" target="_blank" style="display:none;">
+                        <span class="material-icons-round">open_in_new</span>
+                        Open in Google Maps
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="card card-distance" id="cardDistance">
+            <div class="card-header">
+                <span class="material-icons-round card-icon">straighten</span>
+                <h2>Obstacle / Distance</h2>
+                <span class="card-status" id="distanceStatus">—</span>
+            </div>
+            <div class="card-value">
+                <span class="big-value" id="distanceValue">--</span>
+                <span class="unit">cm</span>
+            </div>
+            <div class="card-timestamp" id="distanceTimestamp">No data</div>
+            <div class="distance-bar-container">
+                <div class="distance-bar" id="distanceBar"></div>
+            </div>
+        </section>
+
+        <!-- Row 3: Sensor Health + Camera -->
+        <section class="card card-health" id="cardHealth">
+            <div class="card-header">
+                <span class="material-icons-round card-icon">health_and_safety</span>
+                <h2>Sensor Health</h2>
+            </div>
+            <div class="health-grid" id="healthGrid">
+                <!-- Populated by JS -->
+            </div>
+        </section>
+
+        <section class="card card-camera" id="cardCamera">
+            <div class="card-header">
+                <span class="material-icons-round card-icon">videocam</span>
+                <h2>Camera (ESP32-CAM)</h2>
+                <span class="card-status" id="cameraStatus">—</span>
+            </div>
+            <div class="camera-container" id="cameraContainer">
+                <div class="camera-placeholder" id="cameraPlaceholder">
+                    <span class="material-icons-round">videocam_off</span>
+                    <p>Camera stream unavailable</p>
+                    <p class="camera-hint">Ensure ESP32-CAM is powered and on the same network</p>
+                </div>
+                <img class="camera-stream" id="cameraStream" alt="ESP32-CAM live stream" style="display:none;">
+            </div>
+        </section>
+
+        <!-- Row 4: AI Analysis + Weight Chart -->
+        <section class="card card-ai" id="cardAI">
+            <div class="card-header">
+                <span class="material-icons-round card-icon">psychology</span>
+                <h2>AI Analysis</h2>
+                <button class="analyze-btn" id="analyzeBtn">
+                    <span class="material-icons-round">analytics</span>
+                    Run Analysis
+                </button>
+            </div>
+            <div class="ai-content" id="aiContent">
+                <div class="ai-placeholder" id="aiPlaceholder">
+                    <span class="material-icons-round">smart_toy</span>
+                    <p>Click "Run Analysis" to get AI security assessment</p>
+                </div>
+                <div class="ai-result" id="aiResult" style="display:none;">
+                    <div class="ai-status-badge" id="aiStatusBadge">
+                        <span id="aiStatusText">--</span>
+                    </div>
+                    <div class="ai-risk">
+                        <span class="risk-label">Risk Level:</span>
+                        <span class="risk-value" id="aiRiskLevel">--</span>
+                    </div>
+                    <div class="ai-explanation" id="aiExplanation">--</div>
+                    <div class="ai-factors" id="aiFactors"></div>
+                    <div class="ai-timestamp" id="aiTimestamp">--</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="card card-chart" id="cardChart">
+            <div class="card-header">
+                <span class="material-icons-round card-icon">timeline</span>
+                <h2>Weight Trend</h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="weightChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Row 5: Event History (full width) -->
+        <section class="card card-events" id="cardEvents">
+            <div class="card-header">
+                <span class="material-icons-round card-icon">history</span>
+                <h2>Event History</h2>
+                <span class="event-count" id="eventCount">0 events</span>
+            </div>
+            <div class="events-list" id="eventsList">
+                <div class="events-empty" id="eventsEmpty">
+                    <span class="material-icons-round">event_note</span>
+                    <p>No events yet. Events will appear here as they occur.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ====================== FOOTER ====================== -->
+    <footer class="footer">
+        <p>Smart Travel Bag Dashboard v1.0 — IoT Monitoring &amp; AI-Assisted Security</p>
+        <p class="footer-note">Data shown is from live device telemetry only. No simulated values are used.</p>
+    </footer>
+
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>
