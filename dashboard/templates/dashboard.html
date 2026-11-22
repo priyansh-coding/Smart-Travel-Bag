@@ -5,241 +5,404 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Travel Bag — Dashboard</title>
     <link rel="stylesheet" href="/static/css/style.css">
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-    <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- ====================== HEADER ====================== -->
-    <header class="header">
-        <div class="header-left">
-            <span class="material-icons-round header-icon">luggage</span>
-            <div>
-                <h1 class="header-title">Smart Travel Bag</h1>
-                <p class="header-subtitle">Real-Time IoT Monitoring Dashboard</p>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="connection-badge" id="connectionBadge">
-                <span class="status-dot" id="connectionDot"></span>
-                <span id="connectionText">Connecting…</span>
-            </div>
-            <div class="last-update" id="lastUpdateDisplay">
-                <span class="material-icons-round">schedule</span>
-                <span id="lastUpdateText">No data yet</span>
-            </div>
-            <button class="refresh-btn" id="refreshBtn" title="Refresh dashboard data">
-                <span class="material-icons-round">refresh</span>
-            </button>
-        </div>
-    </header>
+    <div class="app-layout">
 
-    <!-- ====================== SECURITY BANNER ====================== -->
-    <div class="security-banner" id="securityBanner">
-        <span class="material-icons-round" id="bannerIcon">shield</span>
-        <span id="bannerText">Waiting for device connection…</span>
-    </div>
-
-    <!-- ====================== MAIN CONTENT ====================== -->
-    <main class="dashboard-grid">
-
-        <!-- Row 1: Summary Cards -->
-        <section class="card card-summary" id="cardWeight">
-            <div class="card-header">
-                <span class="material-icons-round card-icon">scale</span>
-                <h2>Weight</h2>
-                <span class="card-status" id="weightStatus">—</span>
-            </div>
-            <div class="card-value">
-                <span class="big-value" id="weightValue">--</span>
-                <span class="unit">kg</span>
-            </div>
-            <div class="card-timestamp" id="weightTimestamp">No data</div>
-        </section>
-
-        <section class="card card-summary" id="cardLock">
-            <div class="card-header">
-                <span class="material-icons-round card-icon">lock</span>
-                <h2>Smart Lock</h2>
-                <span class="card-status" id="lockStatus">—</span>
-            </div>
-            <div class="card-value">
-                <span class="big-value lock-icon" id="lockIcon">
-                    <span class="material-icons-round">lock_open</span>
+        <!-- ====================== SIDEBAR ====================== -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-icon">
+                    <span class="material-icons-round">luggage</span>
                 </span>
-                <span class="lock-text" id="lockText">Unknown</span>
-            </div>
-            <div class="rfid-info" id="rfidInfo">RFID: No authentication data</div>
-            <div class="card-timestamp" id="lockTimestamp">No data</div>
-        </section>
-
-        <section class="card card-summary" id="cardBag">
-            <div class="card-header">
-                <span class="material-icons-round card-icon">inventory_2</span>
-                <h2>Bag State</h2>
-                <span class="card-status" id="bagStatus">—</span>
-            </div>
-            <div class="card-value">
-                <span class="big-value" id="bagValue">--</span>
-            </div>
-            <div class="card-timestamp" id="bagTimestamp">No data</div>
-        </section>
-
-        <section class="card card-summary" id="cardMovement">
-            <div class="card-header">
-                <span class="material-icons-round card-icon">sensors</span>
-                <h2>Movement</h2>
-                <span class="card-status" id="movementStatus">—</span>
-            </div>
-            <div class="card-value">
-                <span class="big-value" id="movementValue">--</span>
-            </div>
-            <div class="accel-data" id="accelData">Accel: --</div>
-            <div class="card-timestamp" id="movementTimestamp">No data</div>
-        </section>
-
-        <!-- Row 2: GPS + Distance -->
-        <section class="card card-gps" id="cardGPS">
-            <div class="card-header">
-                <span class="material-icons-round card-icon">location_on</span>
-                <h2>GPS Tracking</h2>
-                <span class="card-status" id="gpsStatus">—</span>
-            </div>
-            <div class="gps-content">
-                <div class="gps-coords">
-                    <div class="coord-row">
-                        <span class="coord-label">Latitude:</span>
-                        <span class="coord-value" id="gpsLat">--</span>
-                    </div>
-                    <div class="coord-row">
-                        <span class="coord-label">Longitude:</span>
-                        <span class="coord-value" id="gpsLon">--</span>
-                    </div>
-                    <div class="coord-row">
-                        <span class="coord-label">Fix Valid:</span>
-                        <span class="coord-value" id="gpsFix">--</span>
-                    </div>
-                </div>
-                <div class="map-container" id="mapContainer">
-                    <div class="map-placeholder" id="mapPlaceholder">
-                        <span class="material-icons-round">map</span>
-                        <p>Waiting for valid GPS fix…</p>
-                    </div>
-                    <a class="map-link" id="mapLink" href="#" target="_blank" style="display:none;">
-                        <span class="material-icons-round">open_in_new</span>
-                        Open in Google Maps
-                    </a>
+                <div>
+                    <span class="brand-name">SmartBag</span>
+                    <span class="brand-sub">IoT Dashboard</span>
                 </div>
             </div>
-        </section>
-
-        <section class="card card-distance" id="cardDistance">
-            <div class="card-header">
-                <span class="material-icons-round card-icon">straighten</span>
-                <h2>Obstacle / Distance</h2>
-                <span class="card-status" id="distanceStatus">—</span>
-            </div>
-            <div class="card-value">
-                <span class="big-value" id="distanceValue">--</span>
-                <span class="unit">cm</span>
-            </div>
-            <div class="card-timestamp" id="distanceTimestamp">No data</div>
-            <div class="distance-bar-container">
-                <div class="distance-bar" id="distanceBar"></div>
-            </div>
-        </section>
-
-        <!-- Row 3: Sensor Health + Camera -->
-        <section class="card card-health" id="cardHealth">
-            <div class="card-header">
-                <span class="material-icons-round card-icon">health_and_safety</span>
-                <h2>Sensor Health</h2>
-            </div>
-            <div class="health-grid" id="healthGrid">
-                <!-- Populated by JS -->
-            </div>
-        </section>
-
-        <section class="card card-camera" id="cardCamera">
-            <div class="card-header">
-                <span class="material-icons-round card-icon">videocam</span>
-                <h2>Camera (ESP32-CAM)</h2>
-                <span class="card-status" id="cameraStatus">—</span>
-            </div>
-            <div class="camera-container" id="cameraContainer">
-                <div class="camera-placeholder" id="cameraPlaceholder">
-                    <span class="material-icons-round">videocam_off</span>
-                    <p>Camera stream unavailable</p>
-                    <p class="camera-hint">Ensure ESP32-CAM is powered and on the same network</p>
+            <nav class="sidebar-nav">
+                <a class="nav-item active" data-section="overview">
+                    <span class="material-icons-round">dashboard</span> Overview
+                </a>
+                <a class="nav-item" data-section="analytics">
+                    <span class="material-icons-round">analytics</span> Analytics
+                </a>
+                <a class="nav-item" data-section="sensors">
+                    <span class="material-icons-round">sensors</span> Sensors
+                </a>
+                <a class="nav-item" data-section="events">
+                    <span class="material-icons-round">history</span> Events
+                </a>
+                <a class="nav-item" data-section="controls">
+                    <span class="material-icons-round">tune</span> Controls
+                </a>
+                <a class="nav-item" data-section="settings">
+                    <span class="material-icons-round">settings</span> Settings
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="connection-pill" id="connectionPill">
+                    <span class="pill-dot" id="connectionDot"></span>
+                    <span id="connectionText">Connecting…</span>
                 </div>
-                <img class="camera-stream" id="cameraStream" alt="ESP32-CAM live stream" style="display:none;">
-            </div>
-        </section>
-
-        <!-- Row 4: AI Analysis + Weight Chart -->
-        <section class="card card-ai" id="cardAI">
-            <div class="card-header">
-                <span class="material-icons-round card-icon">psychology</span>
-                <h2>AI Analysis</h2>
-                <button class="analyze-btn" id="analyzeBtn">
-                    <span class="material-icons-round">analytics</span>
-                    Run Analysis
-                </button>
-            </div>
-            <div class="ai-content" id="aiContent">
-                <div class="ai-placeholder" id="aiPlaceholder">
-                    <span class="material-icons-round">smart_toy</span>
-                    <p>Click "Run Analysis" to get AI security assessment</p>
-                </div>
-                <div class="ai-result" id="aiResult" style="display:none;">
-                    <div class="ai-status-badge" id="aiStatusBadge">
-                        <span id="aiStatusText">--</span>
+                <div class="sidebar-user">
+                    <div class="user-avatar">P</div>
+                    <div>
+                        <div class="user-name">Admin</div>
+                        <div class="user-plan">Pro</div>
                     </div>
-                    <div class="ai-risk">
-                        <span class="risk-label">Risk Level:</span>
-                        <span class="risk-value" id="aiRiskLevel">--</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ====================== MAIN ====================== -->
+        <main class="main-content">
+
+            <!-- Top Bar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <h1 class="page-title" id="pageTitle">Overview</h1>
+                    <span class="page-sub" id="pageSub">Last updates <span id="lastUpdateTop">—</span> · All values live</span>
+                </div>
+                <div class="topbar-right">
+                    <div class="security-pill" id="securityPill">
+                        <span class="material-icons-round" id="securityIcon">shield</span>
+                        <span id="securityText">Checking…</span>
                     </div>
-                    <div class="ai-explanation" id="aiExplanation">--</div>
-                    <div class="ai-factors" id="aiFactors"></div>
-                    <div class="ai-timestamp" id="aiTimestamp">--</div>
+                    <button class="topbar-btn" id="refreshBtn" title="Refresh">
+                        <span class="material-icons-round">refresh</span>
+                    </button>
                 </div>
-            </div>
-        </section>
+            </header>
 
-        <section class="card card-chart" id="cardChart">
-            <div class="card-header">
-                <span class="material-icons-round card-icon">timeline</span>
-                <h2>Weight Trend</h2>
-            </div>
-            <div class="chart-container">
-                <canvas id="weightChart"></canvas>
-            </div>
-        </section>
+            <!-- ======================== OVERVIEW SECTION ======================== -->
+            <section class="page-section" id="section-overview">
 
-        <!-- Row 5: Event History (full width) -->
-        <section class="card card-events" id="cardEvents">
-            <div class="card-header">
-                <span class="material-icons-round card-icon">history</span>
-                <h2>Event History</h2>
-                <span class="event-count" id="eventCount">0 events</span>
-            </div>
-            <div class="events-list" id="eventsList">
-                <div class="events-empty" id="eventsEmpty">
-                    <span class="material-icons-round">event_note</span>
-                    <p>No events yet. Events will appear here as they occur.</p>
+                <!-- Metric Cards Row -->
+                <div class="metric-grid">
+                    <div class="metric-card" id="metricWeight">
+                        <div class="metric-header">
+                            <span class="metric-icon" style="background:var(--emerald-soft)">
+                                <span class="material-icons-round">scale</span>
+                            </span>
+                            <span class="metric-label">Weight</span>
+                            <span class="metric-change up" id="weightChange">—</span>
+                        </div>
+                        <div class="metric-value-row">
+                            <span class="metric-big" id="weightBig">--</span>
+                            <span class="metric-unit">kg</span>
+                        </div>
+                        <div class="metric-sparkline">
+                            <canvas id="sparkWeight"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="metric-card" id="metricDistance">
+                        <div class="metric-header">
+                            <span class="metric-icon" style="background:var(--blue-soft)">
+                                <span class="material-icons-round">straighten</span>
+                            </span>
+                            <span class="metric-label">Distance</span>
+                            <span class="metric-change" id="distanceChange">—</span>
+                        </div>
+                        <div class="metric-value-row">
+                            <span class="metric-big" id="distanceBig">--</span>
+                            <span class="metric-unit">cm</span>
+                        </div>
+                        <div class="metric-sparkline">
+                            <canvas id="sparkDistance"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="metric-card" id="metricMovement">
+                        <div class="metric-header">
+                            <span class="metric-icon" style="background:var(--amber-soft)">
+                                <span class="material-icons-round">sensors</span>
+                            </span>
+                            <span class="metric-label">Movement</span>
+                            <span class="metric-tag" id="movementTag">--</span>
+                        </div>
+                        <div class="metric-value-row">
+                            <span class="metric-big" id="movementBig">--</span>
+                        </div>
+                        <div class="metric-sparkline">
+                            <canvas id="sparkMovement"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="metric-card" id="metricLock">
+                        <div class="metric-header">
+                            <span class="metric-icon" style="background:var(--purple-soft)">
+                                <span class="material-icons-round">lock</span>
+                            </span>
+                            <span class="metric-label">Smart Lock</span>
+                            <span class="metric-tag" id="lockTag">--</span>
+                        </div>
+                        <div class="metric-value-row">
+                            <span class="metric-big" id="lockBig">
+                                <span class="material-icons-round lock-ico">lock</span>
+                            </span>
+                        </div>
+                        <div class="metric-rfid" id="lockRfid">RFID: --</div>
+                    </div>
                 </div>
-            </div>
-        </section>
 
-    </main>
+                <!-- Main Chart + Side Cards -->
+                <div class="overview-grid">
 
-    <!-- ====================== FOOTER ====================== -->
-    <footer class="footer">
-        <p>Smart Travel Bag Dashboard v1.0 — IoT Monitoring &amp; AI-Assisted Security</p>
-        <p class="footer-note">Data shown is from live device telemetry only. No simulated values are used.</p>
-    </footer>
+                    <!-- Weight Trend Area Chart -->
+                    <div class="panel panel-main">
+                        <div class="panel-header">
+                            <div>
+                                <h2 class="panel-title">Weight Trend</h2>
+                                <p class="panel-sub">Real-time weight monitoring</p>
+                            </div>
+                            <div class="panel-actions">
+                                <button class="period-btn active" data-period="24h">24H</button>
+                                <button class="period-btn" data-period="7d">7D</button>
+                                <button class="period-btn" data-period="30d">30D</button>
+                            </div>
+                        </div>
+                        <div class="chart-area-wrap">
+                            <canvas id="weightAreaChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="side-col">
+                        <!-- GPS -->
+                        <div class="panel panel-sm">
+                            <div class="panel-header">
+                                <div>
+                                    <h2 class="panel-title">GPS Location</h2>
+                                    <p class="panel-sub" id="gpsSub">Waiting for fix…</p>
+                                </div>
+                            </div>
+                            <div class="gps-block">
+                                <div class="gps-info">
+                                    <div class="gps-row"><span class="gps-label">Lat</span><span class="gps-val" id="gpsLatVal">--</span></div>
+                                    <div class="gps-row"><span class="gps-label">Lng</span><span class="gps-val" id="gpsLngVal">--</span></div>
+                                    <div class="gps-row"><span class="gps-label">Fix</span><span class="gps-val" id="gpsFixVal">--</span></div>
+                                </div>
+                                <div class="gps-map" id="gpsMap">
+                                    <span class="material-icons-round">map</span>
+                                </div>
+                            </div>
+                            <a class="map-btn" id="mapBtn" href="#" target="_blank" style="display:none">
+                                <span class="material-icons-round">open_in_new</span> Google Maps
+                            </a>
+                        </div>
+
+                        <!-- Bag State -->
+                        <div class="panel panel-sm">
+                            <div class="panel-header">
+                                <h2 class="panel-title">Bag State</h2>
+                            </div>
+                            <div class="bag-state-card" id="bagStateCard">
+                                <div class="bag-visual" id="bagVisual">
+                                    <span class="material-icons-round" id="bagIcon">inventory_2</span>
+                                </div>
+                                <div class="bag-info">
+                                    <span class="bag-status" id="bagStatus">--</span>
+                                    <span class="bag-sub" id="bagSub">No data</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Row: Bar Chart + Donut -->
+                <div class="overview-grid-bottom">
+                    <div class="panel panel-md">
+                        <div class="panel-header">
+                            <div>
+                                <h2 class="panel-title">Sensor Readings</h2>
+                                <p class="panel-sub">Latest values across all sensors</p>
+                            </div>
+                        </div>
+                        <div class="chart-bar-wrap">
+                            <canvas id="sensorBarChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-md">
+                        <div class="panel-header">
+                            <div>
+                                <h2 class="panel-title">System Health</h2>
+                                <p class="panel-sub">Sensor status distribution</p>
+                            </div>
+                        </div>
+                        <div class="donut-wrap">
+                            <div class="donut-chart-container">
+                                <canvas id="healthDonutChart"></canvas>
+                                <div class="donut-center" id="donutCenter">
+                                    <span class="donut-number" id="donutOnline">0</span>
+                                    <span class="donut-label">Online</span>
+                                </div>
+                            </div>
+                            <div class="donut-legend" id="donutLegend"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================== ANALYTICS SECTION ======================== -->
+            <section class="page-section hidden" id="section-analytics">
+                <div class="analytics-grid">
+                    <div class="panel panel-main">
+                        <div class="panel-header">
+                            <div>
+                                <h2 class="panel-title">Performance Overview</h2>
+                                <p class="panel-sub">Weight vs Movement correlation</p>
+                            </div>
+                        </div>
+                        <div class="chart-area-wrap">
+                            <canvas id="perfAreaChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="panel panel-md">
+                        <div class="panel-header">
+                            <div>
+                                <h2 class="panel-title">Distance Analysis</h2>
+                                <p class="panel-sub">Ultrasonic readings over time</p>
+                            </div>
+                        </div>
+                        <div class="chart-bar-wrap">
+                            <canvas id="distanceBarChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="panel panel-sm">
+                        <div class="panel-header">
+                            <div>
+                                <h2 class="panel-title">Risk Score</h2>
+                                <p class="panel-sub">Security assessment</p>
+                            </div>
+                            <span class="risk-badge" id="riskBadge">--</span>
+                        </div>
+                        <div class="risk-display">
+                            <div class="risk-gauge">
+                                <canvas id="riskGaugeChart"></canvas>
+                            </div>
+                            <div class="risk-factors" id="riskFactors">
+                                <p class="risk-empty">Run AI analysis to see factors</p>
+                            </div>
+                        </div>
+                        <button class="analyze-btn" id="analyzeBtn2">
+                            <span class="material-icons-round">psychology</span> Run AI Analysis
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================== SENSORS SECTION ======================== -->
+            <section class="page-section hidden" id="section-sensors">
+                <div class="sensors-grid" id="sensorsGrid">
+                    <!-- Filled by JS -->
+                </div>
+            </section>
+
+            <!-- ======================== EVENTS SECTION ======================== -->
+            <section class="page-section hidden" id="section-events">
+                <div class="panel panel-main">
+                    <div class="panel-header">
+                        <div>
+                            <h2 class="panel-title">Event Log</h2>
+                            <p class="panel-sub" id="eventSub">0 events</p>
+                        </div>
+                        <div class="event-filters">
+                            <button class="filter-btn active" data-filter="all">All</button>
+                            <button class="filter-btn" data-filter="security">Security</button>
+                            <button class="filter-btn" data-filter="device">Device</button>
+                        </div>
+                    </div>
+                    <div class="events-timeline" id="eventsTimeline">
+                        <div class="events-empty">
+                            <span class="material-icons-round">event_note</span>
+                            <p>No events yet</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================== CONTROLS SECTION ======================== -->
+            <section class="page-section hidden" id="section-controls">
+                <div class="controls-grid">
+                    <div class="panel panel-md">
+                        <div class="panel-header">
+                            <div>
+                                <h2 class="panel-title">Buzzer Control</h2>
+                                <p class="panel-sub">Remote buzzer activation</p>
+                            </div>
+                        </div>
+                        <div class="buzzer-grid">
+                            <button class="ctrl-btn ctrl-beep" onclick="buzzerCmd('beep',300)"><span class="material-icons-round">notifications</span> Beep</button>
+                            <button class="ctrl-btn ctrl-alert" onclick="buzzerCmd('pattern',1500,'alert')"><span class="material-icons-round">warning</span> Alert</button>
+                            <button class="ctrl-btn ctrl-sos" onclick="buzzerCmd('pattern',3000,'sos')"><span class="material-icons-round">emergency</span> SOS</button>
+                            <button class="ctrl-btn ctrl-confirm" onclick="buzzerCmd('pattern',400,'confirm')"><span class="material-icons-round">check_circle</span> Confirm</button>
+                            <button class="ctrl-btn ctrl-on" onclick="buzzerCmd('on',5000)"><span class="material-icons-round">volume_up</span> ON 5s</button>
+                            <button class="ctrl-btn ctrl-off" onclick="buzzerCmd('off',0)"><span class="material-icons-round">volume_off</span> OFF</button>
+                        </div>
+                    </div>
+                    <div class="panel panel-md">
+                        <div class="panel-header">
+                            <div>
+                                <h2 class="panel-title">Smart Lock</h2>
+                                <p class="panel-sub">Remote lock control</p>
+                            </div>
+                        </div>
+                        <div class="lock-control">
+                            <button class="lock-toggle-btn" id="lockToggleBtn" onclick="toggleLock()">
+                                <span class="material-icons-round" id="lockToggleIcon">lock</span>
+                                <span id="lockToggleText">Lock</span>
+                            </button>
+                            <div class="lock-status-display">
+                                <span class="lock-indicator" id="lockIndicator">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================== SETTINGS SECTION ======================== -->
+            <section class="page-section hidden" id="section-settings">
+                <div class="panel panel-main">
+                    <div class="panel-header">
+                        <div>
+                            <h2 class="panel-title">Settings</h2>
+                            <p class="panel-sub">Dashboard configuration</p>
+                        </div>
+                    </div>
+                    <div class="settings-list">
+                        <div class="setting-item">
+                            <div>
+                                <span class="setting-name">Auto-refresh</span>
+                                <span class="setting-desc">Poll server every 2 seconds</span>
+                            </div>
+                            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+                        </div>
+                        <div class="setting-item">
+                            <div>
+                                <span class="setting-name">Dark Mode</span>
+                                <span class="setting-desc">Always on</span>
+                            </div>
+                            <label class="toggle"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label>
+                        </div>
+                        <div class="setting-item">
+                            <div>
+                                <span class="setting-name">Sound Alerts</span>
+                                <span class="setting-desc">Play sound on security events</span>
+                            </div>
+                            <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
 
     <script src="/static/js/dashboard.js"></script>
 </body>
